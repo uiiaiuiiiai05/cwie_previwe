@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>แดชบอร์ดผู้ดูแล CWIE | มหาวิทยาลัยพะเยา</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #2f1d43;
+      --muted: #63576d;
+      --purple: #512783;
+      --gold: #876030;
+      --canvas: #f8f5ef;
+      --paper: #fffcf6;
+      --line: #ded4e6;
+      --lavender: #eee5f5;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--canvas); font: 16px/1.55 "IBM Plex Sans Thai", sans-serif; }
+    a { color: inherit; }
+    a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+      outline: 3px solid #c4996c;
+      outline-offset: 3px;
+    }
+    h1, h2, p { margin: 0; }
+    .shell { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar { display: flex; flex-direction: column; gap: 32px; padding: 30px 20px; background: #2d1845; color: #fff9f0; }
+    .brand { display: flex; align-items: center; gap: 12px; padding-inline: 8px; }
+    .brand img { width: 38px; height: 47px; object-fit: contain; }
+    .brand strong { display: block; font-size: 20px; }
+    .brand span, .site-link { color: #e5d5ed; font-size: 14px; }
+    .sidebar nav { display: grid; gap: 5px; }
+    .sidebar a { display: flex; align-items: center; min-height: 44px; padding: 8px 13px; border-radius: 9px; text-decoration: none; }
+    .sidebar a:hover, .sidebar [aria-current] { background: #4d3266; }
+    .sidebar [aria-current] { box-shadow: inset 3px 0 #c4996c; font-weight: 600; }
+    .site-link { margin-top: auto; }
+    [hidden] { display: none !important; }
+    main { width: 100%; max-width: 1340px; min-width: 0; padding: clamp(24px, 4vw, 60px); }
+    .page-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+    h1 { font-size: clamp(28px, 4vw, 44px); line-height: 1.2; letter-spacing: -.025em; }
+    .page-head p { color: var(--muted); margin-top: 7px; }
+    button { font: inherit; cursor: pointer; }
+    .primary { min-height: 44px; padding: 8px 18px; color: #fff9f0; background: var(--purple); border: 1px solid var(--purple); border-radius: 9px; font-weight: 600; }
+    .primary:hover { background: #3a1e62; }
+    .panels { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 18px; }
+    .panel { min-width: 0; padding: clamp(16px, 2vw, 25px); background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+    .panel h2 { font-size: 20px; margin-bottom: 9px; }
+    .rows { margin: 0; padding: 0; list-style: none; }
+    .rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; min-height: 58px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .rows li:last-child { border-bottom: 0; }
+    .status { padding: 2px 9px; border-radius: 99px; background: var(--lavender); color: var(--purple); font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .status.draft { background: #f5ead9; color: #704515; }
+    .events li { justify-content: flex-start; gap: 12px; }
+    .events time { flex: 0 0 64px; color: var(--gold); font-weight: 700; }
+    .secondary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+    .secondary p { color: var(--muted); }
+    .figures { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+    .figures strong { color: var(--purple); font-size: 24px; margin-inline-end: 5px; }
+    dialog { width: min(620px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 24px; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 14px; }
+    dialog::backdrop { background: rgb(43 24 64 / .45); }
+    dialog h2 { margin-bottom: 8px; }
+    dialog p { color: var(--muted); margin-bottom: 16px; }
+    dialog form, dialog label { display: grid; gap: 8px; }
+    dialog form { gap: 14px; }
+    dialog input, dialog textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); font: inherit; }
+    dialog button { justify-self: end; }
+    .preview-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+    .preview-button {
+      min-height: 44px; padding: 8px 16px; border: 1px solid var(--line);
+      border-radius: 9px; color: var(--purple); background: var(--paper); font-weight: 600;
+    }
+    .news-card-preview { padding: 16px; border: 1px solid var(--line); border-radius: 10px; }
+    .news-card-preview h3 { margin: 5px 0; }
+    .news-card-preview p { margin: 0; overflow-wrap: anywhere; }
+    .news-card-preview h3 { overflow-wrap: anywhere; }
+    .cover-preview {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .mock-form { display: grid; gap: 14px; }
+    #contact-settings .panel { max-width: 720px; }
+    #contact-settings .contact-save-status { color: var(--muted); }
+    .mock-form label { display: grid; gap: 5px; }
+    .mock-form input, .mock-form textarea, .mock-form select {
+      width: 100%; min-width: 0; min-height: 44px; padding: 8px 10px;
+      border: 1px solid var(--line); border-radius: 7px;
+      background: #fff; color: var(--ink); font: inherit;
+    }
+    .mock-form :is(input, textarea, select):focus-visible {
+      outline: 3px solid #c4996c; outline-offset: 2px;
+    }
+    .mock-form .field-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    @media (max-width: 640px) { .mock-form .field-pair { grid-template-columns: 1fr; } }
+    @media (max-width: 920px) {
+      .shell { grid-template-columns: 200px minmax(0, 1fr); }
+      .panels { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .shell, .secondary { grid-template-columns: 1fr; }
+      .sidebar { gap: 12px; padding: 16px; }
+      .sidebar nav { display: flex; flex-wrap: wrap; }
+      .sidebar a { padding-inline: 10px; font-size: 14px; }
+      main { padding: 24px 16px; }
+      .page-head { align-items: start; }
+    }
+    :root { --canvas:#f6f5fa; --paper:#fff; --line:#e8e3ef; --purple:#543185; }
+    .shell { grid-template-columns: 230px minmax(0, 1fr); }
+    .sidebar { background:#2c1b42; gap:25px; }
+    .brand { padding-bottom:20px; border-bottom:1px solid #514063; }
+    .sidebar nav a { color:#efe7f9; }
+    main { max-width:1240px; margin-inline:auto; padding:clamp(20px,4vw,52px); }
+    .page-head { margin-bottom:26px; }
+    .panel { box-shadow:0 4px 16px rgb(44 27 66 / .04); }
+    .overview-summary { overflow:hidden; padding:0; }
+    .overview-summary caption small { display:block; margin-top:4px; color:var(--muted); font-size:.8rem; font-weight:400; }
+    .overview-summary td a { display:inline-grid; place-items:center; min-width:44px; min-height:44px; border-radius:8px; color:inherit; text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:4px; }
+    .overview-summary td a:hover, .overview-summary td a:focus-visible { background:#f5edf9; }
+    .status-filters { display:flex; flex-wrap:wrap; gap:6px; margin-block:10px; }
+    .status-filters a { display:inline-flex; align-items:center; min-height:44px; padding:4px 10px; border-radius:7px; color:var(--purple); text-decoration:none; }
+    .status-filters a:hover, .status-filters a[aria-current] { background:#eee7f8; }
+    .status-filters a[aria-current] { font-weight:600; }
+    .overview-summary table { width:100%; table-layout:fixed; border-collapse:collapse; }
+    .overview-summary caption { padding:22px 24px 16px; font-size:20px; font-weight:600; text-align:left; }
+    .overview-summary th, .overview-summary td { padding:12px 24px; text-align:left; }
+    .overview-summary thead { color:var(--muted); background:#f7f4fb; }
+    .overview-summary thead th { font-size:14px; font-weight:600; }
+    .overview-summary tr > :first-child { width:50%; }
+    .overview-summary tr > :not(:first-child) { text-align:center; }
+    .overview-summary tbody tr + tr { border-top:1px solid var(--line); }
+    .overview-summary tbody th { font-weight:600; overflow-wrap:break-word; }
+    .overview-summary td { font-size:26px; color:#563687; font-weight:700; font-variant-numeric:tabular-nums; }
+    .overview-summary th[data-draft], .overview-summary td[data-draft] { color:#866000; }
+    .overview-summary th[data-published], .overview-summary td[data-published] { color:#227349; }
+    @media (max-width:640px) {
+      .overview-summary caption { padding:16px 12px 12px; }
+      .overview-summary th, .overview-summary td { padding:10px 7px; }
+      .overview-summary thead th { font-size:12px; }
+      .overview-summary tbody th { padding-left:12px; font-size:14px; }
+      .overview-summary td { font-size:22px; }
+    }
+    .rows li { min-height:62px; }
+    .row-title { flex:1 1 150px; overflow-wrap:anywhere; }
+    .row-title small { display:block; color:var(--muted); }
+    @media (prefers-reduced-motion:no-preference) {
+      .primary, .row-action { transition:background-color .16s ease; }
+    }
+    .row-action { min-height:44px; padding:5px 11px; border:0; border-radius:7px; background:#f4effa; color:var(--purple); }
+    .row-action:hover, .preview-button:hover { background:#ede4f7; }
+    .danger { color:#982d44; }
+    .feedback { min-height:1.5em; margin-top:10px; color:#375b49; }
+    dialog { width:min(730px,calc(100% - 24px)); }
+    dialog form fieldset { display:grid; gap:12px; border:1px solid var(--line); border-radius:9px; padding:14px; min-width:0; }
+    dialog legend { padding:0 5px; font-weight:600; }
+    dialog details summary { padding:10px 0; cursor:pointer; color:var(--purple); font-weight:600; }
+    dialog details label + label { margin-top:12px; }
+    dialog p:empty { display:none; }
+    @media(max-width:850px) { .shell { grid-template-columns:190px minmax(0,1fr); } }
+    @media(max-width:640px) {
+      .shell { grid-template-columns:1fr; }
+      .brand { padding-bottom:10px; }
+      .sidebar nav { gap:3px; }
+      .sidebar .site-link { min-height:44px; }
+      dialog { padding:16px; }
+    }
+    .category-manager .rows { margin-block:12px; }
+    .category-add { display:flex; flex-wrap:wrap; align-items:end; gap:8px; }
+    .category-add label { flex:1 1 180px; }
+    .category-add .feedback { flex-basis:100%; margin:0; }
+    /* Dashboard hierarchy */
+    :root { --canvas:#f5f4f7; --ink:#261a34; --muted:#5f5769; --line:#e4dfe9; }
+    .sidebar {
+      background:#291b3a;
+      border-inline-end:1px solid #453451;
+      gap:22px;
+    }
+    .sidebar nav a { border:1px solid transparent; }
+    .sidebar nav a:hover { background:#3a294d; }
+    .sidebar nav [aria-current] {
+      background:transparent;
+      border-color:transparent;
+      border-radius:0;
+      box-shadow:inset 2px 0 #d4ad76;
+    }
+    .sidebar .site-link { border-top:1px solid #514063; border-radius:0; }
+    .page-head { padding-bottom:20px; border-bottom:1px solid var(--line); }
+    h1 { font-size:clamp(28px,4vw,40px); }
+    .panel { border-radius:13px; box-shadow:0 3px 12px rgb(38 26 52 / .035); }
+    .overview-summary caption { padding-block:19px 15px; }
+    .overview-summary thead { background:#f4f1f7; }
+    .overview-summary td { padding-block:9px; }
+    .overview-summary td a {
+      min-width:48px;
+      padding-inline:8px;
+      text-decoration:none;
+    }
+    .overview-summary td[data-draft] a { background:#fbf3dc; }
+    .overview-summary td[data-published] a { background:#eaf5ed; }
+    .overview-summary td[data-draft] a:hover { background:#f5e9c3; }
+    .overview-summary td[data-published] a:hover { background:#dcefe3; }
+    .overview-summary td a:hover,
+    .overview-summary td a:focus-visible { text-decoration:underline; }
+    .status { color:#21603d; background:#eaf5ed; }
+    .status.draft { color:#745300; background:#fbf3dc; }
+    .status-filters { margin-block:8px 12px; }
+    .status-filters a[aria-current] { background:#eee7f6; color:#432066; }
+    .rows li { padding-block:11px; }
+    .row-action, .preview-button { border:1px solid var(--line); background:#fff; }
+    .row-action:hover, .preview-button:hover { background:#f4eef9; border-color:#cbb8df; }
+    .row-action.danger:hover { background:#fff0f1; border-color:#e7c6ce; }
+    .mock-form label { font-weight:500; }
+    .mock-form :is(input,textarea,select) { font-weight:400; }
+    summary:focus-visible, select:focus-visible { outline:3px solid #c4996c; outline-offset:3px; }
+    @media (min-width:641px) {
+      .sidebar { position:sticky; top:0; height:100vh; height:100dvh; overflow:auto; }
+    }
+    @media (max-width:640px) {
+      .page-head { padding-bottom:16px; margin-bottom:18px; }
+      .overview-summary td a { min-width:44px; }
+    }
+
+    /* Keep actions and status visible without extra panels. */
+    :root { --canvas:#f8f6f2; --line:#e6dfea; }
+    .page-head { align-items:center; margin-bottom:20px; }
+    h1 { font-size:clamp(27px,3.4vw,36px); }
+    .panel, .overview-summary { border-radius:8px; box-shadow:none; }
+    .overview-summary td a { text-decoration:underline; text-underline-offset:4px; }
+    .overview-summary td:is([data-draft],[data-published]) a { background:transparent; }
+    .overview-summary td a:hover { background:#f2ebf7; }
+    .status-filters { gap:14px; border-bottom:1px solid var(--line); }
+    .status-filters a { border-radius:0; padding-inline:2px; border-bottom:2px solid transparent; }
+    .status-filters a:hover, .status-filters a[aria-current] { background:transparent; }
+    .status-filters a[aria-current] { border-bottom-color:currentColor; }
+    .row-action, .preview-button { border:1px solid transparent; background:transparent; }
+    dialog { --editor-padding:24px; padding:var(--editor-padding); scroll-padding-bottom:98px; }
+    dialog form fieldset { margin:0; padding:0; border:0; }
+    dialog legend { padding:0; margin-bottom:8px; }
+    dialog details { border-block:1px solid var(--line); }
+    dialog details[open] { padding-bottom:12px; }
+    .editor-preview-tools { display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; }
+    .editor-preview-tools > span { color:var(--muted); font-size:.875rem; }
+    .editor-preview-tools button { text-decoration:underline; text-underline-offset:4px; }
+    .editor-actions {
+      position:sticky;
+      bottom:calc(-1 * var(--editor-padding));
+      z-index:1;
+      margin:0 calc(-1 * var(--editor-padding)) calc(-1 * var(--editor-padding));
+      padding:10px var(--editor-padding);
+      border-top:1px solid var(--line);
+      background:var(--paper);
+    }
+    .editor-actions [data-close] { margin-inline-end:auto; }
+    @media (max-width:640px) {
+      dialog { --editor-padding:16px; }
+      .sidebar { gap:9px; }
+      .sidebar nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .sidebar nav a { min-width:0; padding-inline:8px; }
+      .sidebar .site-link { margin-top:0; }
+      .page-head { gap:12px; }
+      .page-head .preview-actions { justify-content:flex-start; }
+      .editor-actions { gap:4px; }
+      .editor-actions :is(.primary,.preview-button) { padding-inline:9px; }
+    }
+    .rows[data-items] > li:has(.row-title) {
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 108px 64px 48px;
+      gap:8px;
+    }
+    .rows[data-items] .status { justify-self:start; border-radius:4px; }
+    @media (max-width:640px) {
+      .sidebar { border-inline-end:0; border-bottom:1px solid var(--line); }
+      .rows[data-items] > li:has(.row-title) {
+        grid-template-columns:minmax(0,1fr) 64px 48px;
+        row-gap:2px;
+      }
+      .rows[data-items] .row-title { grid-column:1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="up-emblem.png" alt="" width="38" height="47">
+        <div><strong>CWIE UP</strong><span>โหมดทดลอง</span></div>
+      </div>
+      <nav aria-label="เมนูผู้ดูแล">
+        <a href="#overview" aria-current="page">ภาพรวม</a>
+        <a href="#news">ข่าวประชาสัมพันธ์</a>
+        <a href="#events">ปฏิทินกิจกรรม</a>
+        <a href="#documents">ระเบียบและประกาศ</a>
+        <a href="#contact-settings">ติดต่อเรา</a>
+        <a href="#statistics">สถิติ</a>
+      </nav>
+      <a class="site-link" href="cwie-v1.3-minimal.html">ดูเว็บไซต์ CWIE <span aria-hidden="true"> ↗</span></a>
+    </aside>
+
+    <main id="overview">
+      <header class="page-head">
+        <div>
+          <h1>ภาพรวม</h1>
+        </div>
+      </header>
+
+      <section class="panel overview-summary" aria-label="ภาพรวมเนื้อหา">
+        <table>
+          <caption>สรุปการเผยแพร่<small>กดตัวเลขเพื่อดูรายการ</small></caption>
+          <thead>
+            <tr><th scope="col">เนื้อหา</th><th scope="col" data-draft>ฉบับร่าง</th><th scope="col" data-published>เผยแพร่แล้ว</th></tr>
+          </thead>
+          <tbody>
+            <tr data-summary="news"><th scope="row">ข่าวประชาสัมพันธ์</th><td data-draft></td><td data-published></td></tr>
+            <tr data-summary="events"><th scope="row">กิจกรรม</th><td data-draft></td><td data-published></td></tr>
+            <tr data-summary="documents"><th scope="row">เอกสาร</th><td data-draft></td><td data-published></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <main id="news" hidden>
+      <header class="page-head">
+        <div><h1>ข่าวประชาสัมพันธ์</h1></div>
+        <div class="preview-actions">
+          <button class="preview-button" type="button" id="open-categories">จัดการหมวดหมู่</button>
+          <button class="primary" type="button" data-open-article>เพิ่มข่าว</button>
+        </div>
+      </header>
+      <section class="panel" aria-labelledby="manage-news-heading">
+        <h2 id="manage-news-heading">รายการข่าว</h2>
+        <ul class="rows" data-items="news" data-records="[{&quot;fields&quot;: {&quot;title-th&quot;: &quot;กิจกรรมความร่วมมือด้านสหกิจศึกษา&quot;}, &quot;status&quot;: &quot;published&quot;}, {&quot;fields&quot;: {&quot;title-th&quot;: &quot;เตรียมความพร้อมก่อนออกปฏิบัติงาน&quot;}, &quot;status&quot;: &quot;draft&quot;}, {&quot;fields&quot;: {&quot;title-th&quot;: &quot;กิจกรรมสำหรับนิสิต CWIE&quot;}, &quot;status&quot;: &quot;draft&quot;}]"></ul>
+      </section>
+    </main>
+
+    <main id="events" hidden>
+      <header class="page-head">
+        <div><h1>ปฏิทินกิจกรรม</h1></div>
+        <button class="primary" type="button" data-open-record="events">เพิ่มกิจกรรม</button>
+      </header>
+        <section class="panel" aria-labelledby="manage-events-heading">
+          <h2 id="manage-events-heading">รายการกิจกรรม</h2>
+          <ul class="rows" data-items="events" data-records="[{&quot;fields&quot;: {&quot;event-name&quot;: &quot;อบรมเตรียมความพร้อม&quot;, &quot;event-date&quot;: &quot;2027-01-15&quot;, &quot;event-type&quot;: &quot;อบรม&quot;}, &quot;status&quot;: &quot;draft&quot;}, {&quot;fields&quot;: {&quot;event-name&quot;: &quot;ประเมินความพร้อมก่อนปฏิบัติงาน&quot;, &quot;event-date&quot;: &quot;2027-02-05&quot;, &quot;event-type&quot;: &quot;ประเมิน&quot;}, &quot;status&quot;: &quot;draft&quot;}]"></ul>
+        </section>
+    </main>
+
+    <main id="documents" hidden>
+      <header class="page-head">
+        <div><h1>ระเบียบ ประกาศ และข้อบังคับ</h1></div>
+        <button class="primary" type="button" data-open-record="documents">เพิ่มเอกสาร</button>
+      </header>
+        <section class="panel" aria-labelledby="manage-documents-heading">
+          <h2 id="manage-documents-heading">รายการเอกสาร</h2>
+          <ul class="rows" data-items="documents" data-records="[{&quot;fields&quot;: {&quot;document-name&quot;: &quot;ระเบียบการดำเนินงานสหกิจศึกษา&quot;, &quot;document-type&quot;: &quot;ระเบียบ&quot;}, &quot;status&quot;: &quot;draft&quot;}, {&quot;fields&quot;: {&quot;document-name&quot;: &quot;ประกาศกำหนดการสหกิจศึกษา&quot;, &quot;document-type&quot;: &quot;ประกาศ&quot;}, &quot;status&quot;: &quot;draft&quot;}, {&quot;fields&quot;: {&quot;document-name&quot;: &quot;ข้อบังคับการจัดการศึกษา CWIE&quot;, &quot;document-type&quot;: &quot;ข้อบังคับ&quot;}, &quot;status&quot;: &quot;draft&quot;}]"></ul>
+        </section>
+    </main>
+
+    <main id="contact-settings" hidden>
+      <header class="page-head">
+        <div>
+          <h1 id="contact-settings-heading">ข้อมูลติดต่อ</h1>
+          <p>แสดงในส่วนติดต่อเราท้ายเว็บไซต์</p>
+        </div>
+      </header>
+      <section class="panel" aria-labelledby="contact-settings-heading">
+        <form id="contact-settings-form" class="mock-form">
+          <div class="field-pair">
+            <label>ชื่อหน่วยงาน <input name="organization" type="text" value="สหกิจศึกษา" autocomplete="organization"></label>
+            <label>ชื่อกอง <input name="division" type="text"></label>
+          </div>
+          <label>ที่อยู่ <textarea name="address" rows="3" autocomplete="street-address">มหาวิทยาลัยพะเยา จังหวัดพะเยา</textarea></label>
+          <div class="field-pair">
+            <label>เบอร์โทรศัพท์ <input name="phone" type="tel" autocomplete="tel"></label>
+            <label>เบอร์ต่อ <input name="extension" type="tel" value="1023" autocomplete="tel-extension"></label>
+          </div>
+          <div class="field-pair">
+            <label>อีเมล <input name="email" type="email" autocomplete="email"></label>
+            <label>เวลาทำการ <input name="office-hours"></label>
+          </div>
+          <div class="preview-actions">
+            <button class="primary" type="submit">บันทึกข้อมูลติดต่อ</button>
+          </div>
+          <p id="contact-save-status" class="contact-save-status" role="status"></p>
+        </form>
+      </section>
+    </main>
+
+    <main id="statistics" hidden>
+      <header class="page-head">
+        <div><h1>สถิติ</h1></div>
+      </header>
+      <div class="panels">
+        <section class="panel" aria-labelledby="manage-stats-heading">
+          <h2 id="manage-stats-heading">ตัวเลขตัวอย่าง</h2>
+          <div class="figures">
+            <p><strong>1,600</strong>นิสิต CWIE</p>
+            <p><strong>540</strong>สถานประกอบการ</p>
+          </div>
+        </section>
+        <section class="panel">
+          <h2>สถิติการเข้าชมเว็บไซต์</h2>
+          <p>ผู้เยี่ยมชมและยอดเปิดหน้าเว็บจะแสดงเมื่อเชื่อมระบบนับยอด</p>
+          
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <dialog class="category-manager" id="category-manager" aria-labelledby="category-heading">
+    <h2 id="category-heading">จัดการหมวดหมู่ข่าว</h2>
+    <p>ถ้ามีข่าวใช้หมวดอยู่ ให้เปลี่ยนหมวดในข่าวก่อนลบ</p>
+    <div class="mock-form category-add">
+      <label>ชื่อหมวดหมู่ใหม่ <input id="new-category-name" maxlength="100"></label>
+      <button type="button" id="save-category" class="preview-button">เพิ่มหมวด</button>
+      <p id="new-category-status" class="feedback" role="status"></p>
+    </div>
+    <ul class="rows" id="category-list"></ul>
+    <p class="feedback" id="category-status" role="status"></p>
+    <form method="dialog"><button class="preview-button">ปิด</button></form>
+  </dialog>
+
+  <dialog id="article-preview" aria-labelledby="preview-heading">
+    <h2 id="preview-heading">เพิ่มข่าว</h2>
+    <p>ข้อมูลทดลองจะหายเมื่อโหลดหน้าใหม่</p>
+    <form class="mock-form" novalidate>
+      <fieldset>
+        <legend>เนื้อหาภาษาไทย</legend>
+        <label>หัวข้อข่าว <input name="title-th"></label>
+        <label>เนื้อหาข่าว <textarea name="body-th" rows="4"></textarea></label>
+      </fieldset>
+      <details>
+        <summary>เพิ่มเนื้อหาภาษาอังกฤษ (ถ้ามี)</summary>
+        <label>หัวข้อภาษาอังกฤษ <input name="title-en" lang="en"></label>
+        <label>เนื้อหาภาษาอังกฤษ <textarea name="body-en" lang="en" rows="3"></textarea></label>
+      </details>
+      <label>หมวดหมู่ข่าว
+        <select name="category"><option value="">ไม่ระบุหมวด</option><option>รับสมัครสหกิจ</option><option>กิจกรรมและอบรม</option><option>ประกาศและกำหนดส่ง</option></select>
+      </label>
+      <label>วันที่ข่าว <input name="news-date" type="date"></label>
+      <label>รูปปกข่าว <input name="cover" type="file" accept="image/jpeg,image/png,image/webp"></label>
+      <img id="cover-preview" class="cover-preview" alt="ตัวอย่างรูปปกข่าว" hidden>
+      <div class="editor-preview-tools" role="group" aria-label="ตัวอย่างข่าว">
+        <span>ตัวอย่างข่าว</span>
+        <button class="preview-button" type="button" data-news-preview="card">การ์ดข่าว</button>
+        <button class="preview-button" type="button" data-news-preview="detail">หน้ารายละเอียด</button>
+      </div>
+      <section id="news-card-preview" class="news-card-preview" hidden>
+        <h3 id="news-card-title"></h3>
+        <p id="news-card-date"></p>
+        <p id="news-card-summary" style="white-space:pre-wrap"></p>
+      </section>
+      <p class="feedback" role="status"></p>
+      <div class="preview-actions editor-actions">
+        <button class="preview-button" type="button" data-close>ยกเลิก</button>
+
+
+        <button class="preview-button" type="submit" value="draft">บันทึกร่าง</button>
+        <button class="primary" type="submit" value="published">เผยแพร่</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="record-editor" aria-labelledby="record-heading">
+    <h2 id="record-heading"></h2>
+    <p>ข้อมูลทดลองจะหายเมื่อโหลดหน้าใหม่</p>
+    <form class="mock-form" novalidate>
+      <div class="mock-form" data-fields="events">
+        <label>ชื่อกิจกรรม <input name="event-name"></label>
+        <label>ประเภท <select name="event-type"><option>อบรม</option><option>ประเมิน</option></select></label>
+        <label>วันที่จัด <input type="date" name="event-date"></label>
+        <div class="field-pair">
+          <label>เวลาเริ่ม <input type="time" name="start-time"></label>
+          <label>เวลาสิ้นสุด <input type="time" name="end-time"></label>
+        </div>
+        <label>สถานที่ <input name="location"></label>
+        <label>รายละเอียดกิจกรรม <textarea name="event-description" rows="3"></textarea></label>
+        <label>สิ่งที่ต้องเตรียม <textarea name="event-preparation" rows="2"></textarea></label>
+      </div>
+      <div class="mock-form" data-fields="documents">
+        <label>ชื่อเอกสาร <input name="document-name"></label>
+        <label>ประเภท <select name="document-type"><option>ระเบียบ</option><option>ประกาศ</option><option>ข้อบังคับ</option></select></label>
+        <label>วันที่ระบุในเอกสาร <input type="date" name="document-date"></label>
+        <label>คำอธิบาย <textarea name="document-description" rows="3"></textarea></label>
+        <label>ไฟล์ PDF <input type="file" name="document-file" accept=".pdf,application/pdf"></label>
+        <p id="attached-document"></p>
+      </div>
+      <div class="editor-preview-tools" role="group" aria-label="ตัวอย่างหน้าบ้าน">
+        <button class="preview-button" type="button" id="show-record-preview">ดูตัวอย่างหน้าบ้าน</button>
+      </div>
+      <section id="record-display-preview" class="news-card-preview" hidden>
+        <h3></h3><p style="white-space:pre-wrap"></p>
+      </section>
+      <p class="feedback" role="status"></p>
+      <div class="preview-actions editor-actions">
+        <button class="preview-button" type="button" data-close>ยกเลิก</button>
+
+        <button class="preview-button" type="submit" value="draft">บันทึกร่าง</button>
+        <button class="primary" type="submit" value="published">เผยแพร่</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const preview = document.getElementById('article-preview');
+    const menuLinks = [...document.querySelectorAll('.sidebar nav a')];
+    const views = [...document.querySelectorAll('.shell > main')];
+
+    function showAdminView() {
+      const [viewId] = location.hash.slice(1).split('/');
+      const current = views.find(view => view.id === viewId) || views[0];
+      views.forEach(view => { view.hidden = view !== current; });
+      menuLinks.forEach(link => {
+        if (link.hash === '#' + current.id) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+      });
+      if (records[current.id]) render(current.id);
+      window.scrollTo(0, 0);
+    }
+
+    const contactForm = document.getElementById('contact-settings-form');
+    const contactSaveStatus = document.getElementById('contact-save-status');
+
+    contactForm.addEventListener('submit', event => {
+      event.preventDefault();
+      contactSaveStatus.textContent = 'บันทึกในโหมดทดลองแล้ว ข้อมูลบนเว็บไซต์ยังเหมือนเดิม';
+    });
+
+    contactForm.addEventListener('input', () => {
+      contactSaveStatus.textContent = '';
+    });
+
+    const editor = document.getElementById('record-editor');
+    const newsCover = preview.querySelector('[name="cover"]');
+    const coverPreview = document.getElementById('cover-preview');
+    const newsCard = document.getElementById('news-card-preview');
+    const lists = [...document.querySelectorAll('[data-items]')];
+    const names = { news: 'ข่าว', events: 'กิจกรรม', documents: 'เอกสาร' };
+    const titleField = { news: 'title-th', events: 'event-name', documents: 'document-name' };
+    const records = {};
+    const categorySelect = preview.querySelector('[name="category"]');
+    const categories = Array.from(categorySelect.options).slice(1).map(option => ({ name: option.value }));
+    const categoryList = document.getElementById('category-list');
+    const categoryManager = document.getElementById('category-manager');
+    const newCategory = document.getElementById('new-category-name');
+    const newCategoryStatus = document.getElementById('new-category-status');
+    const statusLabels = { all: 'ทั้งหมด', draft: 'ฉบับร่าง', published: 'เผยแพร่แล้ว' };
+    let kind;
+    let selected;
+    let activeCoverUrl;
+
+    lists.forEach(list => {
+      const type = list.dataset.items;
+      records[type] = JSON.parse(list.dataset.records);
+      const filters = document.createElement('nav');
+      filters.className = 'status-filters';
+      filters.setAttribute('aria-label', 'กรองตามสถานะ');
+      for (const [status, label] of Object.entries(statusLabels)) {
+        const link = document.createElement('a');
+        link.href = '#' + type + (status === 'all' ? '' : '/' + status);
+        link.textContent = label;
+        filters.append(link);
+      }
+      list.before(filters);
+      const feedback = document.createElement('p');
+      feedback.className = 'feedback';
+      feedback.setAttribute('role', 'status');
+      list.after(feedback);
+    });
+
+    function action(label, handler, className = 'row-action') {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = label;
+      button.className = className;
+      button.addEventListener('click', handler);
+      return button;
+    }
+
+    function updateCategoryOptions(value = '') {
+      categorySelect.replaceChildren(new Option('ไม่ระบุหมวด', ''));
+      for (const category of categories) {
+        categorySelect.add(new Option(category.name, category.name));
+      }
+      categorySelect.value = value;
+    }
+
+    function renderCategories(message = '') {
+      categoryList.replaceChildren();
+      for (const category of categories) {
+        const count = records.news.filter(news => news.fields.category === category.name).length;
+        const row = document.createElement('li');
+        const title = document.createElement('span');
+        title.className = 'row-title';
+        title.textContent = category.name;
+        const details = document.createElement('small');
+        details.textContent = count ? count + ' ข่าว · เปลี่ยนหมวดในข่าวก่อนลบ' : 'ยังไม่มีข่าวใช้หมวดนี้';
+        title.append(details);
+        row.append(title);
+        if (!count) {
+          row.append(action('ลบหมวด', () => {
+            if (!confirm('ลบหมวด «' + category.name + '» ใช่ไหม?')) return;
+            categories.splice(categories.indexOf(category), 1);
+            renderCategories('ลบหมวดแล้ว');
+            newCategory.focus();
+          }, 'row-action danger'));
+        }
+        categoryList.append(row);
+      }
+      if (!categories.length) {
+        const empty = document.createElement('li');
+        empty.textContent = 'ยังไม่มีหมวดหมู่';
+        categoryList.append(empty);
+      }
+      document.getElementById('category-status').textContent = message;
+    }
+
+    function addCategory() {
+      const name = newCategory.value.trim().replace(/\s+/g, ' ');
+      if (!name) {
+        newCategoryStatus.textContent = 'ใส่ชื่อหมวดหมู่ก่อน';
+        newCategory.focus();
+        return;
+      }
+      if (categories.some(category => category.name.toLowerCase() === name.toLowerCase())) {
+        newCategoryStatus.textContent = 'มีหมวดชื่อนี้แล้ว';
+        newCategory.focus();
+        return;
+      }
+      categories.push({ name });
+      renderCategories();
+      newCategory.value = '';
+      newCategoryStatus.textContent = 'เพิ่มหมวด «' + name + '» แล้ว';
+    }
+
+    document.getElementById('open-categories').addEventListener('click', () => {
+      newCategory.value = '';
+      newCategoryStatus.textContent = '';
+      renderCategories();
+      categoryManager.showModal();
+    });
+    document.getElementById('save-category').addEventListener('click', addCategory);
+    newCategory.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' || event.isComposing) return;
+      event.preventDefault();
+      addCategory();
+    });
+
+    function render(type, message = '') {
+      const list = lists.find(item => item.dataset.items === type);
+      if (type === 'news') renderCategories();
+      const [viewId, filter] = location.hash.slice(1).split('/');
+      const currentFilter = viewId === type && (filter === 'draft' || filter === 'published') ? filter : 'all';
+      const filters = list.previousElementSibling;
+      for (const link of filters.querySelectorAll('a')) {
+        const active = link.hash === '#' + type + (currentFilter === 'all' ? '' : '/' + currentFilter);
+        if (active) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      }
+      list.replaceChildren();
+      for (const record of records[type]) {
+        if (currentFilter !== 'all' && record.status !== currentFilter) continue;
+        const row = document.createElement('li');
+        const title = document.createElement('span');
+        title.className = 'row-title';
+        title.textContent = record.fields[titleField[type]] || 'ยังไม่มีชื่อ';
+        const details = record.fields.category || record.fields['document-type'] ||
+          [record.fields['event-type'], record.fields['event-date']].filter(Boolean).join(' · ');
+        if (details) {
+          const caption = document.createElement('small');
+          caption.textContent = details;
+          title.append(caption);
+        }
+        const status = document.createElement('span');
+        status.className = record.status === 'draft' ? 'status draft' : 'status';
+        status.textContent = record.status === 'draft' ? 'ฉบับร่าง' : 'เผยแพร่แล้ว';
+        row.append(title, status, action('แก้ไข', () => openEditor(type, record)),
+          action('ลบ', () => {
+            if (!confirm('ลบรายการ «' + (record.fields[titleField[type]] || 'ยังไม่มีชื่อ') + '» ใช่ไหม?')) return;
+            records[type] = records[type].filter(item => item !== record);
+            render(type, 'ลบรายการในโหมดทดลองแล้ว');
+            lists.find(item => item.dataset.items === type).querySelector('button')?.focus();
+          }, 'row-action danger'));
+        list.append(row);
+      }
+      if (!list.children.length) {
+        const empty = document.createElement('li');
+        empty.textContent = currentFilter === 'all' ? 'ยังไม่มีรายการ' : 'ไม่มีรายการในสถานะนี้';
+        list.append(empty);
+      }
+      list.nextElementSibling.textContent = message;
+      const draftCount = records[type].filter(record => record.status === 'draft').length;
+      const publishedCount = records[type].length - draftCount;
+      const summary = document.querySelector('[data-summary="' + type + '"]');
+      for (const [status, count] of [['draft', draftCount], ['published', publishedCount]]) {
+        const cell = summary.querySelector('[data-' + status + ']');
+        cell.textContent = count;
+        if (count === 0) continue;
+        const link = document.createElement('a');
+        link.href = '#' + type + '/' + status;
+        link.textContent = count;
+        link.setAttribute('aria-label', names[type] + ' ' + statusLabels[status] + ' ' + count + ' รายการ');
+        cell.replaceChildren(link);
+      }
+    }
+
+    function showCover(file) {
+      if (activeCoverUrl) URL.revokeObjectURL(activeCoverUrl);
+      activeCoverUrl = file ? URL.createObjectURL(file) : undefined;
+      const src = activeCoverUrl;
+      coverPreview.hidden = !src;
+      if (src) coverPreview.src = src;
+      else coverPreview.removeAttribute('src');
+    }
+
+    function openEditor(type, record) {
+      kind = type;
+      selected = record;
+      const dialog = type === 'news' ? preview : editor;
+      const form = dialog.querySelector('form');
+      form.reset();
+      form.querySelector('[role="status"]').textContent = '';
+      dialog.querySelector('h2').textContent = (record ? 'แก้ไข' : 'เพิ่ม') + names[type];
+      editor.querySelectorAll('[data-fields]').forEach(group => {
+        group.hidden = group.dataset.fields !== type;
+      });
+      if (type === 'news') {
+        updateCategoryOptions(record?.fields.category);
+      }
+      for (const [name, value] of Object.entries(record?.fields || {})) {
+        form.elements.namedItem(name).value = value;
+      }
+      if (type === 'news') {
+        newsCard.hidden = true;
+        showCover(record?.file);
+      }
+      document.getElementById('attached-document').textContent = record?.file?.name || '';
+      document.getElementById('record-display-preview').hidden = true;
+      dialog.showModal();
+    }
+
+    document.querySelectorAll('[data-open-article]').forEach(button => {
+      button.addEventListener('click', () => openEditor('news'));
+    });
+    document.querySelectorAll('[data-open-record]').forEach(button => {
+      button.addEventListener('click', () => openEditor(button.dataset.openRecord));
+    });
+    newsCover.addEventListener('change', () => showCover(newsCover.files[0] || selected?.file));
+    preview.addEventListener('close', () => showCover());
+    const formatPreviewDate = new Intl.DateTimeFormat('th-TH', {dateStyle:'long', timeZone:'UTC'});
+    function previewDate(value) {
+      return value ? formatPreviewDate.format(new Date(value)) : 'ยังไม่ระบุวันที่';
+    }
+
+    preview.querySelectorAll('[data-news-preview]').forEach(button => {
+      button.addEventListener('click', () => {
+        const form = preview.querySelector('form');
+        const detail = button.dataset.newsPreview === 'detail';
+        document.getElementById('news-card-title').textContent = form.elements['title-th'].value.trim() || 'หัวข้อข่าว';
+        document.getElementById('news-card-date').textContent = previewDate(form.elements['news-date'].value);
+        document.getElementById('news-card-summary').textContent = detail ? (form.elements['body-th'].value.trim() || 'เนื้อหาข่าว') : '';
+        newsCard.hidden = false;
+      });
+    });
+
+    const recordPreview = document.getElementById('record-display-preview');
+    document.getElementById('show-record-preview').addEventListener('click', () => {
+      const form = editor.querySelector('form');
+      const value = name => form.elements.namedItem(name).value.trim();
+      const isEvent = kind === 'events';
+      const time = [value('start-time'), value('end-time')].filter(Boolean).map(part => part.replace(':', '.')).join(' - ');
+      const file = form.elements['document-file'].files[0] || selected?.file;
+      recordPreview.querySelector('h3').textContent = value(titleField[kind]) || (isEvent ? 'ชื่อกิจกรรม' : 'ชื่อเอกสาร');
+      recordPreview.querySelector('p').textContent = (isEvent ? [
+        'ปฏิทิน' + value('event-type'),
+        previewDate(value('event-date')),
+        value('event-description'),
+        time && 'เวลา ' + time + ' น.',
+        value('event-preparation') && 'สิ่งที่ต้องเตรียม ' + value('event-preparation'),
+        value('location') && 'สถานที่ ' + value('location')
+      ] : [
+        value('document-type'),
+        previewDate(value('document-date')),
+        file ? 'PDF · ' + file.name : 'รอไฟล์ PDF'
+      ]).filter(Boolean).join('\n');
+      recordPreview.hidden = false;
+    });
+
+    [preview, editor].forEach(dialog => {
+      const form = dialog.querySelector('form');
+      form.querySelector('[data-close]').addEventListener('click', () => dialog.close());
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        const status = event.submitter?.value || 'draft';
+        const activeFields = kind === 'news' ? form : form.querySelector('[data-fields="' + kind + '"]');
+        const fields = {};
+        for (const control of activeFields.querySelectorAll('input[name]:not([type="file"]), select[name], textarea[name]')) {
+          fields[control.name] = control.value.trim();
+        }
+        const file = activeFields.querySelector('input[type="file"]')?.files[0] || selected?.file;
+        const feedback = form.querySelector('[role="status"]');
+        if (status === 'published') {
+          if (!fields[titleField[kind]] ||
+              (kind === 'news' && (!fields['body-th'] || !file)) ||
+              (kind === 'events' && !fields['event-date']) ||
+              (kind === 'documents' && !file)) {
+            feedback.textContent = {
+              news: 'ใส่หัวข้อข่าว เนื้อหาภาษาไทย และรูปปกก่อนเผยแพร่',
+              events: 'ใส่ชื่อกิจกรรมและวันที่จัดก่อนเผยแพร่',
+              documents: 'ใส่ชื่อเอกสารและแนบ PDF ก่อนเผยแพร่'
+            }[kind];
+            feedback.scrollIntoView({block:'nearest'});
+            return;
+          }
+          if (!confirm('เผยแพร่รายการนี้ในโหมดทดลองไหม?')) return;
+        }
+        if (kind === 'events' && fields['start-time'] && fields['end-time'] &&
+            fields['end-time'] < fields['start-time']) {
+          feedback.textContent = 'เวลาสิ้นสุดต้องตรงกับหรือหลังเวลาเริ่ม';
+          feedback.scrollIntoView({block:'nearest'});
+          return;
+        }
+        const record = { fields, status, file };
+        if (selected) Object.assign(selected, record);
+        else records[kind].unshift(record);
+        dialog.close();
+        render(kind, status === 'draft' ? 'บันทึกร่างในโหมดทดลองแล้ว' : 'เผยแพร่ในโหมดทดลองแล้ว');
+      });
+    });
+
+    lists.forEach(list => render(list.dataset.items));
+    window.addEventListener('hashchange', showAdminView);
+    showAdminView();
+  </script>
+</body>
+</html>
